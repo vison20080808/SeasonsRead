@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">四季阅读</string>
+    <string name="title_section1">所有文章</string>
+    <string name="title_section2">专栏作品</string>
+    <string name="title_section3">文化讯息</string>
+    <string name="title_section4">推荐读物</string>
+    <string name="navigation_drawer_open">打开</string>
+    <string name="navigation_drawer_close">关闭</string>
+    <string name="action_refresh">刷新</string>
+    <string name="action_settings">设置</string>
+
+</resources>
