@@ -1,6 +1,7 @@
 SR provides some interesting articles for reading.
 
 UI: 
+
     android.support.v4.widget.DrawerLayout
     
     android.support.v4.widget.SwipeRefreshLayout
@@ -11,6 +12,7 @@ UI:
 
 
 DATA: 
+
     android.support.v4.content.CursorLoader
     
     ContentProvider
