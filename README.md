@@ -1,8 +1,14 @@
 SR can provide some interesting articles for reading.
 
-UI: android.support.v4.widget.DrawerLayout & android.support.v7.app.ActionBarDrawerToggle & android.support.v4.widget.SwipeRefreshLayout
+UI: 
+    android.support.v4.widget.DrawerLayout
+    android.support.v4.widget.SwipeRefreshLayout
+    android.support.design.widget.NavigationView
+    Collapsing Toolbar: android.support.design.widget.CollapsingToolbarLayout
 
-DATA: android.support.v4.content.CursorLoader & ContentProvider
+DATA: 
+    android.support.v4.content.CursorLoader
+    ContentProvider
 
 WEB: Volley
 

@@ -73,6 +73,7 @@ public class PlaceholderFragment extends BaseFragment implements LoaderManager.L
         mSectionIndex = bundle.getInt(ARG_SECTION_NUMBER);
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

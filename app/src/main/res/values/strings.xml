@@ -10,5 +10,6 @@
     <string name="navigation_drawer_close">关闭</string>
     <string name="action_refresh">刷新</string>
     <string name="action_settings">设置</string>
+    <string name="action_share">分享</string>
 
 </resources>
