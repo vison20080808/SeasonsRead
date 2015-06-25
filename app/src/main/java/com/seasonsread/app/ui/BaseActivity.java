@@ -1,6 +1,6 @@
 package com.seasonsread.app.ui;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -11,7 +11,7 @@ import com.seasonsread.app.util.ToastUtils;
 /**
  * Created by ZhanTao on 1/9/15.
  */
-public class BaseActivity extends Activity {
+public class BaseActivity extends AppCompatActivity/*Activity*/ {
 
     @Override
     public void onDestroy() {
