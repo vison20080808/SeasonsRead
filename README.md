@@ -1,4 +1,4 @@
-SR can provide some interesting articles for reading.
+SR provides some interesting articles for reading.
 
 UI: 
     android.support.v4.widget.DrawerLayout
@@ -9,6 +9,7 @@ UI:
 DATA: 
     android.support.v4.content.CursorLoader
     ContentProvider
+
 
 WEB: Volley
 
