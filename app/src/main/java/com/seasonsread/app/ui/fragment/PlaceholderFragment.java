@@ -8,27 +8,26 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.seasonsread.app.R;
 import com.seasonsread.app.SeasonsReadApp;
 import com.seasonsread.app.base.Constants;
 import com.seasonsread.app.base.Urls;
 import com.seasonsread.app.data.FeedsContentProviderHelper;
-import com.seasonsread.app.data.GsonRequest;
 import com.seasonsread.app.model.Feed;
-import com.seasonsread.app.ui.Adapter.FeedsAdapter;
 import com.seasonsread.app.ui.DetailsActivity;
 import com.seasonsread.app.ui.MainActivity;
+import com.seasonsread.app.ui.adapter.FeedsRecyclerAdapter;
+import com.seasonsread.app.util.EndlessRecyclerOnScrollListener;
+import com.seasonsread.app.util.LogUtils;
 import com.seasonsread.app.util.TaskUtils;
-import com.seasonsread.app.util.ToastUtils;
-import com.seasonsread.app.view.LoadMoreFooter;
-import com.seasonsread.app.view.LoadMoreListView;
+import com.seasonsread.app.view.DividerItemDecoration;
+import com.seasonsread.app.web.UrlRequest;
 
 import java.util.ArrayList;
 
@@ -39,7 +38,8 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PlaceholderFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
+public class PlaceholderFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        SwipeRefreshLayout.OnRefreshListener {
     /*
      * The fragment argument representing the section number for thisØ
      * fragment.
@@ -50,8 +50,8 @@ public class PlaceholderFragment extends BaseFragment implements LoaderManager.L
 
     private FeedsContentProviderHelper mFeedsContentProviderHelper;
     private SwipeRefreshLayout mSwipeLayout;
-    private LoadMoreListView mLoadMoreListView;
-    private FeedsAdapter mFeedsAdapter;
+    private RecyclerView mLoadMoreListView;
+    private FeedsRecyclerAdapter mFeedsAdapter;
 
     public PlaceholderFragment() {
     }
@@ -83,33 +83,41 @@ public class PlaceholderFragment extends BaseFragment implements LoaderManager.L
                 mSectionIndex);
         mSwipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
         mSwipeLayout.setOnRefreshListener(this);
-        mSwipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+        mSwipeLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-        mLoadMoreListView = (LoadMoreListView) rootView.findViewById(R.id.pull_refresh_list);
+        mLoadMoreListView = (RecyclerView) rootView.findViewById(R.id.pull_refresh_list);
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        mLoadMoreListView.setLayoutManager(llm);
 
-        mLoadMoreListView.setOnLoadMoreListener(new LoadMoreListView.OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                loadNext();
-            }
-        });
-
-        mFeedsAdapter = new FeedsAdapter(getActivity());
+        mFeedsAdapter = new FeedsRecyclerAdapter(getActivity());
         mLoadMoreListView.setAdapter(mFeedsAdapter);
-        mLoadMoreListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mLoadMoreListView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                DividerItemDecoration.VERTICAL_LIST));
+        mFeedsAdapter.setOnItemClickLitener(new FeedsRecyclerAdapter.OnItemClickLitener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(View view, int position) {
                 Feed feed = mFeedsAdapter.getItem(position);
+                if (feed == null)
+                    return;
                 Intent intent = new Intent();
                 intent.putExtra(Constants.DETAILS_EXTRA_ARTICLE_ID, Integer.toString(feed.getArticle_id()));
                 intent.putExtra(Constants.DETAILS_EXTRA_COLUMN,
-                        ((MainActivity)getActivity()).getSupportActionBar().getTitle());
+                        ((MainActivity) getActivity()).getSupportActionBar().getTitle());
                 intent.putExtra(Constants.DETAILS_EXTRA_TITLE, feed.getTitle());
                 intent.setClass(getActivity(), DetailsActivity.class);
                 getActivity().startActivity(intent);
+            }
+        });
+        mFeedsAdapter.setCustomLoadMoreView(LayoutInflater.from(getActivity())
+                .inflate(R.layout.custom_bottom_progressbar, null));
+
+        mLoadMoreListView.addOnScrollListener(new EndlessRecyclerOnScrollListener(llm) {
+            @Override
+            public void onLoadMore(int current_page) {
+                loadNext();
             }
         });
 
@@ -150,20 +158,35 @@ public class PlaceholderFragment extends BaseFragment implements LoaderManager.L
         url.append(mSectionIndex);
         url.append("&page_index=");
         url.append(mPage);
-        executeRequest(new GsonRequest(url.toString(),
-                Feed.GsonRequestData.class, responseListener(), errorListener()));
-    }
-
-    private Response.Listener<Feed.GsonRequestData> responseListener() {
-        final boolean isRefreshFromTop = ("0".equals(mPage));
-        return new Response.Listener<Feed.GsonRequestData>() {
+//        executeRequest(new GsonRequest(url.toString(),
+//                Feed.GsonRequestData.class, responseListener(), errorListener()));
+        UrlRequest<Feed.GsonRequestData> urlRequest = new UrlRequest<Feed.GsonRequestData>(url.toString(), this);
+        LogUtils.d(">>>> url=%s", urlRequest.getUrl());
+        urlRequest.setDelegate(new UrlRequest.RequestDelegate() {
             @Override
-            public void onResponse(final Feed.GsonRequestData response) {
+            public void requestFailed(UrlRequest request, int statusCode) {
+
+                setRefreshing(false);
+                LogUtils.d(">>>> requestFailed statusCode = %s", statusCode);
+//                if (error.getMessage() != null &&
+//                        error.getMessage().startsWith("com.google.gson.JsonSyntaxException"))
+//                    mLoadMoreListView.setState(LoadMoreFooter.State.END);
+//                else {
+//                    mLoadMoreListView.setState(LoadMoreFooter.State.IDLE, 10000);
+//                    ToastUtils.showShort("Loading failed!");
+//                }
+            }
+
+            @Override
+            public void requestFinished(final UrlRequest request) {
+                LogUtils.d(">>>> requestFinished()");
                 TaskUtils.executeAsyncTask(new AsyncTask<Object, Object, Boolean>() {
+                    final boolean isRefreshFromTop = ("0".equals(mPage));
+
                     @Override
                     protected Boolean doInBackground(Object... params) {
                         boolean bHasUpdatingData = false;
-                        ArrayList<Feed> feeds = response.feeds;
+                        ArrayList<Feed> feeds = ((Feed.GsonRequestData) (request.getGsonData())).feeds;
                         mFeedsContentProviderHelper.bulkInsert(feeds);
                         if (feeds != null && feeds.size() > 0) {
                             mPage = feeds.get(feeds.size() - 1).getCreatetime();
@@ -180,37 +203,25 @@ public class PlaceholderFragment extends BaseFragment implements LoaderManager.L
 
                         setRefreshing(false);
 
-                        if (isRefreshFromTop) {
-                            if (bHasUpdatingData && mFeedsAdapter.getCount() > 0) {
-                                mLoadMoreListView.setSelectionAfterHeaderView();//smoothScrollToPosition(0);
-                            }
-                            ToastUtils.showShort("Refreshing done!");
-                        }
-
-                        if (bHasUpdatingData)
-                            mLoadMoreListView.setState(LoadMoreFooter.State.IDLE);
-                        else
-                            mLoadMoreListView.setState(LoadMoreFooter.State.END);
+//                        if (isRefreshFromTop) {
+//                            if (bHasUpdatingData && mFeedsAdapter.getCount() > 0) {
+//                                mLoadMoreListView.setSelectionAfterHeaderView();//smoothScrollToPosition(0);
+//                            }
+//                            ToastUtils.showShort("Refreshing done!");
+//                        }
+//
+//                        if (bHasUpdatingData)
+//                            mLoadMoreListView.setState(LoadMoreFooter.State.IDLE);
+//                        else
+//                            mLoadMoreListView.setState(LoadMoreFooter.State.END);
                     }
                 });
             }
-        };
+        });
+        urlRequest.setGsonType(Feed.GsonRequestData.class);
+        urlRequest.start();
     }
 
-    protected Response.ErrorListener errorListener() {
-        return new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                setRefreshing(false);
-                if (error.getMessage() != null && error.getMessage().startsWith("com.google.gson.JsonSyntaxException"))
-                    mLoadMoreListView.setState(LoadMoreFooter.State.END);
-                else {
-                    mLoadMoreListView.setState(LoadMoreFooter.State.IDLE, 10000);
-                    ToastUtils.showShort("Loading failed!");
-                }
-            }
-        };
-    }
 
     private void setRefreshing(boolean bRefreshing) {
         if (mSwipeLayout.isRefreshing() != bRefreshing)

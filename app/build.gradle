@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.seasonsread.app"
-        minSdkVersion 7
+        minSdkVersion 8
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -33,4 +33,5 @@ dependencies {
 
     compile 'com.github.bumptech.glide:glide:3.6.0'
 
+    compile 'com.marshalchen.ultimaterecyclerview:library:0.3.11'
 }

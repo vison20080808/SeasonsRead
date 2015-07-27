@@ -1,4 +1,4 @@
-package com.seasonsread.app.ui.Adapter;
+package com.seasonsread.app.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;

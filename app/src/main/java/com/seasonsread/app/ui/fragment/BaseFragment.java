@@ -2,7 +2,7 @@ package com.seasonsread.app.ui.fragment;
 
 import android.support.v4.app.Fragment;
 
-import com.seasonsread.app.manager.WebRequestManager;
+import com.seasonsread.app.web.WebRequestManager;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
