@@ -4,5 +4,6 @@
     <style name="MyAppTheme" parent="Base.MyAppTheme">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:listDivider">@drawable/divider_bg</item>
     </style>
 </resources>

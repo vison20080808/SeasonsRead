@@ -114,6 +114,7 @@ public class DetailsActivity extends BaseActivity {
         CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle(shareTitle);
+        collapsingToolbar.setStatusBarScrimColor(getResources().getColor(R.color.colorPrimary));
 
         loadBackdrop();
 

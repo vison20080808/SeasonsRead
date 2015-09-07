@@ -3,7 +3,7 @@ package com.seasonsread.app;
 import android.app.Application;
 import android.content.Context;
 
-import com.seasonsread.app.manager.WebRequestManager;
+import com.seasonsread.app.web.WebRequestManager;
 
 /**
  * Created by ZhanTao on 1/9/15.

@@ -11,6 +11,8 @@
     </style>
 
 
-    <style name="MyAppTheme" parent="Base.MyAppTheme"/>
+    <style name="MyAppTheme" parent="Base.MyAppTheme">
+        <item name="android:listDivider">@drawable/divider_bg</item>
+    </style>
 
 </resources>

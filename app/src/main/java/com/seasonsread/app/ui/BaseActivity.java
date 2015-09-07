@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.seasonsread.app.manager.WebRequestManager;
+import com.seasonsread.app.web.WebRequestManager;
 import com.seasonsread.app.util.ToastUtils;
 
 /**

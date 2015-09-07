@@ -15,30 +15,53 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.seasonsread.app.R;
+import com.seasonsread.app.model.ViewpagerImageItem;
+import com.seasonsread.app.ui.adapter.ImageViewPagerAdapter;
 import com.seasonsread.app.ui.fragment.PlaceholderFragment;
+import com.seasonsread.app.util.ListUtils;
+import com.seasonsread.app.view.CirclePageIndicator;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.trinea.android.view.autoscrollviewpager.AutoScrollViewPager;
 
 
-public class MainActivity extends AppCompatActivity
-        /*implements NavigationDrawerFragment.NavigationDrawerCallbacks*/ {
+public class MainActivity extends AppCompatActivity{
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-//    private NavigationDrawerFragment mNavigationDrawerFragment;
+    private AutoScrollViewPager mAutoScrollViewPager;
+    private CirclePageIndicator mIndicator;
+    private List<ViewpagerImageItem> mImagesList;
 
     private NavigationView navigationView;
     private DrawerLayout mDrawerLayout;
     private PlaceholderFragment mPlaceholderFragment;
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
     private CharSequence mTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        initUI();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // stop auto scroll when onPause
+        mAutoScrollViewPager.stopAutoScroll();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // start auto scroll when onResume
+        mAutoScrollViewPager.startAutoScroll();
+    }
+
+    private void initUI(){
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -47,8 +70,6 @@ public class MainActivity extends AppCompatActivity
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
 
-//        mNavigationDrawerFragment = (NavigationDrawerFragment)
-//                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
@@ -63,11 +84,6 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.container, mPlaceholderFragment)
                 .commit();
 
-
-//        // Set up the drawer.
-//        mNavigationDrawerFragment.setUp(
-//                R.id.navigation_drawer,
-//                (DrawerLayout) findViewById(R.id.drawer_layout));
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,17 +93,42 @@ public class MainActivity extends AppCompatActivity
             }
         });
         fab.setVisibility(View.GONE);
+
+        initViewPager();
     }
 
-//    @Override
-//    public void onNavigationDrawerItemSelected(int position) {
-//        // update the main content by replacing fragments
-//        mPlaceholderFragment = PlaceholderFragment.newInstance(position);
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        fragmentManager.beginTransaction()
-//                .replace(R.id.container, mPlaceholderFragment)
-//                .commit();
-//    }
+    private void initViewPager(){
+        mAutoScrollViewPager = (AutoScrollViewPager)findViewById(R.id.viewpager);
+        mIndicator = (CirclePageIndicator)findViewById(R.id.page_indicator);
+
+        mImagesList = new ArrayList<ViewpagerImageItem>();
+        ViewpagerImageItem item = new ViewpagerImageItem();
+        item.setUrl("http://seasonsread-seasonsread.stor.sinaapp.com/images/2014/03/24/170029_7034.jpg");
+        item.setArticleID(88);
+        mImagesList.add(item);
+
+        item = new ViewpagerImageItem();
+        item.setUrl("http://seasonsread-seasonsread.stor.sinaapp.com/images/2013/09/10/155053_1364.jpg");
+        item.setArticleID(58);
+        mImagesList.add(item);
+
+        item = new ViewpagerImageItem();
+        item.setUrl("http://seasonsread-seasonsread.stor.sinaapp.com/images/2013/08/20/161811_4762.jpg");
+        item.setArticleID(18);
+        mImagesList.add(item);
+
+        item = new ViewpagerImageItem();
+        item.setUrl("http://seasonsread-seasonsread.stor.sinaapp.com/images/2013/09/05/093544_2695.jpg");
+        item.setArticleID(34);
+        mImagesList.add(item);
+
+        mAutoScrollViewPager.setAdapter(new ImageViewPagerAdapter(this, mImagesList));
+        mIndicator.setViewPager(mAutoScrollViewPager);
+
+        mAutoScrollViewPager.setInterval(5000);
+        mAutoScrollViewPager.setCurrentItem(Integer.MAX_VALUE / 2 - Integer.MAX_VALUE / 2 % ListUtils.getSize(mImagesList));
+
+    }
 
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
@@ -141,25 +182,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        if (!mDrawerLayout.isShown()/*mNavigationDrawerFragment.isDrawerOpen()*/) {
-//            // Only show items in the action bar relevant to this screen
-//            // if the drawer is not showing. Otherwise, let the drawer
-//            // decide what to show in the action bar.
-//            getMenuInflater().inflate(R.menu.main, menu);
-//            restoreActionBar();
-//            return true;
-//        }
-//        return super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -173,9 +199,9 @@ public class MainActivity extends AppCompatActivity
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
-            case R.id.action_refresh:
+            /*case R.id.action_refresh:
                 mPlaceholderFragment.loadFirstAndScrollToTop();
-                return true;
+                return true;*/
         }
         return super.onOptionsItemSelected(item);
     }
